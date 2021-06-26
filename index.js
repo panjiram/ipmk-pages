@@ -1,26 +1,37 @@
+const { query } = require("express");
 const express = require("express");
+const db = require("mongoose");
 const app = express();
+const cors = require("cors");
+require("dotenv").config();
 
-const port = "3000";
-
-app.get("/",(req,res)=>{
-      res.sendFile("./view/index.html",{root : __dirname});
+const port = process.env.PORT || 5000;
+const uri = process.env.URI_DB;
+db.connect(uri, { useNewUrlParser: true, useCreateIndex: true });
+const dbconnect = db.connection;
+dbconnect.once("open",()=>{
+        console.log("Database Is Connected");
 });
 
-app.get("/profile",(req,res)=>{
-
-    res.send("Profile Testing");
+app.get("/", (req, res) => {
+  res.sendFile("./view/index.html", { root: __dirname });
 });
-
-app.get("/article",(req,res)=>{
+app.get("/profile/:name", (req, res) => {
+  res.send(
+    "Profile Testing : " + req.params.name + " name : " + req.query.nama
+  );
+});
+app.get("/article", (req, res) => {
   res.send("Article Testing");
 });
-
-app.use("/",(req,res)=>{
-    res.status(404)
-    res.send("Menu Utama Tidak ada!");
+app.use("/", (req, res) => {
+  res.status(404);
+  res.send("Menu Utama Tidak ada!");
 });
 
-app.listen(port,()=>{
-    console.log("Success!");
+app.use(cors());
+app.use(express.json());
+
+app.listen(port, () => {
+  console.log(`Server is Running on port : ${port}`);
 });
